@@ -1,19 +1,15 @@
-use crossterm::event::{read, Event::Key, KeyCode::Char};
+use crossterm::event::{read, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 
-pub struct Editor {}
-
-// TODO: Add Default configs
-impl Default for Editor {
-    fn default() -> Self {
-        Self::new()
-    }
+pub struct Editor {
+    should_quit: bool,
 }
 
+#[allow(clippy::new_without_default)]
 impl Editor {
     #[must_use]
     pub fn new() -> Self {
-        Editor {}
+        Editor { should_quit: false }
     }
 
     /// Runs the editor loop and handles errors by panicking.
@@ -26,7 +22,7 @@ impl Editor {
     /// # Panics
     /// This function will panic if:
     /// - `repl` returns an `Err`, indicating a failure to read input or manage terminal modes.
-    pub fn run(&self) {
+    pub fn run(&mut self) {
         if let Err(err) = self.repl() {
             panic!("{err:#?}");
         }
@@ -51,18 +47,30 @@ impl Editor {
     /// let editor = Editor::new();
     /// editor.run();
     /// ```
-    fn repl(&self) -> Result<(), std::io::Error> {
+    fn repl(&mut self) -> Result<(), std::io::Error> {
         enable_raw_mode()?;
 
         loop {
-            if let Key(event) = read()? {
-                println!("{event:?} \r");
+            if let Key(KeyEvent {
+                code,
+                modifiers,
+                kind,
+                state,
+            }) = read()?
+            {
+                println!(
+                    "Code: {code:?} Modifiers: {modifiers:?} Kind: {kind:?} State: {state:?} \r"
+                );
 
-                if let Char(c) = event.code {
-                    if c == 'q' {
-                        break;
+                match code {
+                    Char(c) if (c == 'q' || c == 'c') && modifiers == KeyModifiers::CONTROL => {
+                        self.should_quit = true;
                     }
+                    _ => (),
                 }
+            }
+            if self.should_quit {
+                break;
             }
         }
 
