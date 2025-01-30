@@ -1,7 +1,4 @@
-use crossterm::{
-    event::{read, Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers},
-    style::Print,
-};
+use crossterm::event::{read, Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers};
 
 use crate::terminal::Terminal;
 
