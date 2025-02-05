@@ -9,5 +9,5 @@
 use hecto::editor::Editor;
 
 fn main() {
-    Editor::new().run();
+    Editor::default().run();
 }
