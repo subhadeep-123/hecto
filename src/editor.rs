@@ -1,11 +1,11 @@
+use core::cmp::min;
+use std::io::Error;
+
 use crossterm::event::{
     read,
     Event::{self, Key},
     KeyCode, KeyEvent, KeyEventKind, KeyModifiers,
 };
-
-use core::cmp::min;
-use std::io::Error;
 
 mod terminal;
 mod view;
@@ -29,6 +29,7 @@ pub struct Editor {
     /// A flag to indicate whether the editor should quit.
     should_quit: bool,
     location: Location,
+    view: View,
 }
 
 #[allow(clippy::new_without_default)]
@@ -123,12 +124,13 @@ impl Editor {
             Terminal::clear_screen()?;
             Terminal::print("Goodbye.\r\n")?;
         } else {
-            View::render()?;
+            self.view.render()?;
             Terminal::move_caret_to(Position {
                 col: self.location.x,
                 row: self.location.y,
             })?;
         }
+
         Terminal::show_caret()?;
         Terminal::execute()?;
         Ok(())
