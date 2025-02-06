@@ -6,7 +6,9 @@
     clippy::as_conversions,
     clippy::integer_division
 )]
-use hecto::editor::Editor;
+
+mod editor;
+use editor::Editor;
 
 fn main() {
     Editor::default().run();
